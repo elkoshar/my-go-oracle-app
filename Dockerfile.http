@@ -1,85 +1,74 @@
-# =====================================================================
-# STAGE 1: BUILD - Builds the Go binary and installs Instant Client
-# =====================================================================
-# We use a standard Go image that includes a C compiler (gcc) needed for godror.
-FROM 1.25.3-bookworm  AS base-golang
+# syntax=docker/dockerfile:1
 
-# Install OS prerequisites (libaio for Instant Client, unzip/curl for installation)
-RUN apk add --no-cache \
-    libaio \
-    unzip \
-    curl \
-    libc6-compat \
-    gcc \
-    musl-dev \
-    make \
-    git
+# --- STAGE 0: Oracle Client Extractor ---
+FROM golang:1.25.3-bookworm AS client_extractor
 
-# Set the Instant Client version and directory
-# Adjust '21_13' based on the version you downloaded
-ENV INSTANT_CLIENT_VER 21_13
-ENV ORACLE_HOME /opt/oracle/instantclient_$INSTANT_CLIENT_VER
+# Install dependencies and create the directory
+RUN apt-get update && apt-get install -y unzip && \
+    mkdir -p /opt/oracle
 
-# Copy and unzip the Instant Client files
-# Ensure your ZIP files are named correctly in the build context!
-# *** Remember to copy your downloaded ZIP files into the Docker build context ***
-COPY instantclient-basic-*.zip /tmp/
-COPY instantclient-sdk-*.zip /tmp/
+WORKDIR /opt/oracle
 
-RUN mkdir -p $ORACLE_HOME && \
-    unzip /tmp/instantclient-basic-*.zip -d /opt/oracle && \
-    unzip /tmp/instantclient-sdk-*.zip -d /opt/oracle && \
-    rm /tmp/*.zip
+# Define the full, exact filenames you downloaded
+ENV BASIC_ZIP=instantclient-basic-linux.arm64-23.26.0.0.0.zip
+ENV SDK_ZIP=instantclient-sdk-linux.arm64-23.26.0.0.0.zip
 
-# Create the symlink for the main library and configure the library path for compilation
-RUN ln -s $ORACLE_HOME/libclntsh.so.* $ORACLE_HOME/libclntsh.so && \
-    echo "$ORACLE_HOME" > /etc/ld.so.conf.d/oracle-instantclient.conf && \
-    ldconfig
+# COPY the exact files into the container.
+COPY ${BASIC_ZIP} .
+COPY ${SDK_ZIP} .
 
-# Set CGO environment variables for 'godror' compilation
-ENV CGO_ENABLED=1
-ENV CGO_LDFLAGS="-L${ORACLE_HOME}"
-ENV CGO_CFLAGS="-I${ORACLE_HOME}/sdk/include"
+# *** CRITICAL DEBUG STEP: Force Check and Robust Unzip ***
+# 1. List files again (ensures cache is busted)
+# 2. Use 'unzip -o' to overwrite any corrupted files and increase verbosity
+RUN ls -l && \
+    unzip -o ${BASIC_ZIP} && \
+    unzip -o ${SDK_ZIP} && \
+    rm -f ${BASIC_ZIP} ${SDK_ZIP}
 
-# Copy the Go source code and build the application
+
+# --- STAGE 1: Builder (Using golang:1.25.3-bookworm) ---
+FROM golang:1.25.3-bookworm AS builder
+
+# Install build-time dependencies
+RUN apt-get update && apt-get install -y gcc pkg-config
+
+# --- Copy Oracle files from the extractor stage ---
+ENV ORACLE_CLIENT_PATH=/opt/oracle/instantclient_23_26
+COPY --from=client_extractor ${ORACLE_CLIENT_PATH} ${ORACLE_CLIENT_PATH}
+
+# --- Configure CGO (C Go) for the godror driver ---
+ENV CGO_CFLAGS="-I${ORACLE_CLIENT_PATH}/sdk/include"
+ENV CGO_LDFLAGS="-L${ORACLE_CLIENT_PATH} -lclntsh"
+
+# --- Proceed with the Go build ---
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-
-# Build the final Go application binary
-# Use the '-a' flag to rebuild all packages from scratch (safer with CGO)
-RUN go build -a -o /usr/local/bin/my-go-oracle-app ./cmd/main.go
+RUN go build -ldflags="-w" -o /app/my-go-oracle-app ./cmd/http/main.go
 
 
-# =====================================================================
-# STAGE 2: FINAL - Creates the minimal runtime image
-# =====================================================================
-FROM base-golang AS final
+# --- STAGE 2: Final Runtime ---
+FROM debian:bookworm-slim
 
-# Install only the necessary runtime library
-# 'libaio' is the crucial dependency for the Instant Client on Linux
-RUN apk add --no-cache libaio libc6-compat
+# Install the *only* runtime dependency, 'libaio1'
+RUN apt-get update && \
+    apt-get install -y libaio1 && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set the Instant Client directory variables for runtime
-ENV INSTANT_CLIENT_VER 21_13
-ENV ORACLE_HOME /opt/oracle/instantclient_$INSTANT_CLIENT_VER
+# Create the directory and copy *only* the runtime libraries
+WORKDIR /opt/oracle/instantclient
+COPY --from=client_extractor /opt/oracle/instantclient_23_26/*.so* .
 
-# Copy the Instant Client runtime libraries from the build stage
-# We only need the files required for execution, not the SDK headers.
-COPY --from=build $ORACLE_HOME /opt/oracle/instantclient_$INSTANT_CLIENT_VER
+# Set the library path to our new directory
+ENV LD_LIBRARY_PATH=/opt/oracle/instantclient
 
-# Copy the binary from the build stage
-COPY --from=build /usr/local/bin/my-go-oracle-app /usr/local/bin/my-go-oracle-app
+WORKDIR /app
+COPY --from=builder /app/my-go-oracle-app .
+# Copy swagger docs file
+COPY --from=builder /app/docs /app/docs
 
-# Configure the runtime library path
-ENV LD_LIBRARY_PATH $ORACLE_HOME:$LD_LIBRARY_PATH
-
-# Set the entrypoint for the application
-CMD ["/usr/local/bin/my-go-oracle-app"]
+COPY --from=builder /app/configs /app/configs
+# Run the named binary
+CMD ["/app/my-go-oracle-app"]
 EXPOSE 8812
-
-
-#----------------------------------------------------------------
-
-# Use the base Golang image for HTTP server related tasks
