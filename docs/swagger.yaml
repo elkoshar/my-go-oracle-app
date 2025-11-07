@@ -1,0 +1,12 @@
+basePath: /my-go-oracle-app
+info:
+  contact:
+    email: oracle.team@mail.com
+    name: Oracle Team
+    url: https://github.com/orgs/xxxx/projects/1
+  description: This service is to handle My Go ORACLE App. For more detail, please
+    visit https://github.com/
+  title: MY GO ORACLE APP API
+  version: "0.1"
+paths: {}
+swagger: "2.0"

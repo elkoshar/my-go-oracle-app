@@ -1,0 +1,85 @@
+# =====================================================================
+# STAGE 1: BUILD - Builds the Go binary and installs Instant Client
+# =====================================================================
+# We use a standard Go image that includes a C compiler (gcc) needed for godror.
+FROM 1.25.3-bookworm  AS base-golang
+
+# Install OS prerequisites (libaio for Instant Client, unzip/curl for installation)
+RUN apk add --no-cache \
+    libaio \
+    unzip \
+    curl \
+    libc6-compat \
+    gcc \
+    musl-dev \
+    make \
+    git
+
+# Set the Instant Client version and directory
+# Adjust '21_13' based on the version you downloaded
+ENV INSTANT_CLIENT_VER 21_13
+ENV ORACLE_HOME /opt/oracle/instantclient_$INSTANT_CLIENT_VER
+
+# Copy and unzip the Instant Client files
+# Ensure your ZIP files are named correctly in the build context!
+# *** Remember to copy your downloaded ZIP files into the Docker build context ***
+COPY instantclient-basic-*.zip /tmp/
+COPY instantclient-sdk-*.zip /tmp/
+
+RUN mkdir -p $ORACLE_HOME && \
+    unzip /tmp/instantclient-basic-*.zip -d /opt/oracle && \
+    unzip /tmp/instantclient-sdk-*.zip -d /opt/oracle && \
+    rm /tmp/*.zip
+
+# Create the symlink for the main library and configure the library path for compilation
+RUN ln -s $ORACLE_HOME/libclntsh.so.* $ORACLE_HOME/libclntsh.so && \
+    echo "$ORACLE_HOME" > /etc/ld.so.conf.d/oracle-instantclient.conf && \
+    ldconfig
+
+# Set CGO environment variables for 'godror' compilation
+ENV CGO_ENABLED=1
+ENV CGO_LDFLAGS="-L${ORACLE_HOME}"
+ENV CGO_CFLAGS="-I${ORACLE_HOME}/sdk/include"
+
+# Copy the Go source code and build the application
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+
+# Build the final Go application binary
+# Use the '-a' flag to rebuild all packages from scratch (safer with CGO)
+RUN go build -a -o /usr/local/bin/my-go-oracle-app ./cmd/main.go
+
+
+# =====================================================================
+# STAGE 2: FINAL - Creates the minimal runtime image
+# =====================================================================
+FROM base-golang AS final
+
+# Install only the necessary runtime library
+# 'libaio' is the crucial dependency for the Instant Client on Linux
+RUN apk add --no-cache libaio libc6-compat
+
+# Set the Instant Client directory variables for runtime
+ENV INSTANT_CLIENT_VER 21_13
+ENV ORACLE_HOME /opt/oracle/instantclient_$INSTANT_CLIENT_VER
+
+# Copy the Instant Client runtime libraries from the build stage
+# We only need the files required for execution, not the SDK headers.
+COPY --from=build $ORACLE_HOME /opt/oracle/instantclient_$INSTANT_CLIENT_VER
+
+# Copy the binary from the build stage
+COPY --from=build /usr/local/bin/my-go-oracle-app /usr/local/bin/my-go-oracle-app
+
+# Configure the runtime library path
+ENV LD_LIBRARY_PATH $ORACLE_HOME:$LD_LIBRARY_PATH
+
+# Set the entrypoint for the application
+CMD ["/usr/local/bin/my-go-oracle-app"]
+EXPOSE 8812
+
+
+#----------------------------------------------------------------
+
+# Use the base Golang image for HTTP server related tasks
