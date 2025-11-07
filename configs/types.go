@@ -29,5 +29,10 @@ type (
 		OracleSlaveDatabase string `mapstructure:"ORACLE_SLAVE_DATABASE"`
 		OracleSlaveUsername string `mapstructure:"ORACLE_SLAVE_USERNAME"`
 		OracleSlavePassword string `mapstructure:"ORACLE_SLAVE_PASSWORD"`
+
+		OracleMaxOpenConnection int           `mapstructure:"ORACLE_MAX_OPEN_CONNECTION"`
+		OracleMaxIdleConnection int           `mapstructure:"ORACLE_MAX_IDLE_CONNECTION"`
+		OracleConnMaxIdleTime   time.Duration `mapstructure:"ORACLE_CONN_MAX_IDLE_TIME"`
+		OracleConnMaxLifeTime   time.Duration `mapstructure:"ORACLE_CONN_MAX_LIFE_TIME"`
 	}
 )

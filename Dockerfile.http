@@ -9,21 +9,16 @@ RUN apt-get update && apt-get install -y unzip && \
 
 WORKDIR /opt/oracle
 
-# Define the full, exact filenames you downloaded
-ENV BASIC_ZIP=instantclient-basic-linux.arm64-23.26.0.0.0.zip
-ENV SDK_ZIP=instantclient-sdk-linux.arm64-23.26.0.0.0.zip
+# Download the Basic and SDK packages for ARM64 (aarch64)
+# We use version 23.26, the latest stable ARM zip
+RUN curl -o basic.zip https://download.oracle.com/otn_software/linux/instantclient/2326000/instantclient-basic-linux.arm64-23.26.0.0.0.zip && \
+    curl -o sdk.zip https://download.oracle.com/otn_software/linux/instantclient/2326000/instantclient-sdk-linux.arm64-23.26.0.0.0.zip
 
-# COPY the exact files into the container.
-COPY ${BASIC_ZIP} .
-COPY ${SDK_ZIP} .
-
-# *** CRITICAL DEBUG STEP: Force Check and Robust Unzip ***
-# 1. List files again (ensures cache is busted)
-# 2. Use 'unzip -o' to overwrite any corrupted files and increase verbosity
+# Unzip them. They will extract into a directory named 'instantclient_23_26'
 RUN ls -l && \
-    unzip -o ${BASIC_ZIP} && \
-    unzip -o ${SDK_ZIP} && \
-    rm -f ${BASIC_ZIP} ${SDK_ZIP}
+    unzip -o basic.zip && \
+    unzip -o sdk.zip && \
+    rm -f basic.zip sdk.zip
 
 
 # --- STAGE 1: Builder (Using golang:1.25.3-bookworm) ---

@@ -6,6 +6,7 @@ require (
 	github.com/eapache/go-resiliency v1.7.0
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-chi/cors v1.2.2
+	github.com/go-chi/render v1.0.3
 	github.com/godror/godror v0.49.4
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/julienschmidt/httprouter v1.3.0
@@ -21,6 +22,7 @@ require (
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/VictoriaMetrics/easyproto v0.1.4 // indirect
+	github.com/ajg/form v1.5.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

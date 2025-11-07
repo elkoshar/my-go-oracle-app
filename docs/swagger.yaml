@@ -1,4 +1,41 @@
 basePath: /my-go-oracle-app
+definitions:
+  oracle_com_oracle_my-go-oracle-app_pkg_response.Error:
+    properties:
+      code:
+        description: application error code for tracing
+        example: 0
+        type: integer
+      msg:
+        description: error message
+        example: ' '
+        type: string
+      status:
+        description: true if we have error
+        example: false
+        type: boolean
+    type: object
+  oracle_com_oracle_my-go-oracle-app_pkg_response.Response:
+    properties:
+      code: {}
+      data: {}
+      error:
+        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_pkg_response.Error'
+      message:
+        type: string
+      pagination: {}
+      serverTime:
+        type: integer
+    type: object
+  oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse:
+    properties:
+      id:
+        type: integer
+      info:
+        type: string
+      name:
+        type: string
+    type: object
 info:
   contact:
     email: oracle.team@mail.com
@@ -8,5 +45,41 @@ info:
     visit https://github.com/
   title: MY GO ORACLE APP API
   version: "0.1"
-paths: {}
+paths:
+  /members/{id}:
+    get:
+      consumes:
+      - application/json
+      description: GetMemberById handles request for Get Member by Id
+      parameters:
+      - default: id
+        description: accept language
+        in: header
+        name: Accept-Language
+        required: true
+        type: string
+      - description: id of Member
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Response
+          schema:
+            allOf:
+            - $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse'
+              type: object
+        "400":
+          description: Bad Request
+        "500":
+          description: InternalServerError
+      summary: Get Member by Id
+      tags:
+      - Member
 swagger: "2.0"

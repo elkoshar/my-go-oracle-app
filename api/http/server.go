@@ -7,14 +7,16 @@ import (
 	"time"
 
 	"oracle.com/oracle/my-go-oracle-app/api"
+	"oracle.com/oracle/my-go-oracle-app/api/http/member"
 	config "oracle.com/oracle/my-go-oracle-app/configs"
 )
 
 // Server struct
 type Server struct {
-	server      *http.Server
-	Cfg         *config.Config
-	HealthCheck api.HealthChecker
+	server        *http.Server
+	Cfg           *config.Config
+	HealthCheck   api.HealthChecker
+	MemberService api.MemberService
 }
 
 var ()
@@ -22,7 +24,7 @@ var ()
 // Serve will run an HTTP server
 func (s *Server) Serve(port string) error {
 
-	//coverage.Init(s.CoverageService)
+	member.Init(s.MemberService)
 	s.server = &http.Server{
 		ReadTimeout:  s.Cfg.HttpReadTimeout * time.Second,
 		WriteTimeout: s.Cfg.HttpWriteTimeout * time.Second,

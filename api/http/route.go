@@ -12,6 +12,7 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"oracle.com/oracle/my-go-oracle-app/api"
+	"oracle.com/oracle/my-go-oracle-app/api/http/member"
 	config "oracle.com/oracle/my-go-oracle-app/configs"
 	"oracle.com/oracle/my-go-oracle-app/pkg/helpers"
 	"oracle.com/oracle/my-go-oracle-app/pkg/logger"
@@ -65,14 +66,14 @@ func handler(checker api.HealthChecker, cfg *config.Config) http.Handler {
 
 		// Test Panics to Slack function
 		r.Handle("/panics", panics.CaptureHandler(func(w http.ResponseWriter, r *http.Request) {
-			panic("Panics from Insurance Core")
+			panic("Panics from /test/panics endpoint")
 		}))
 
 		r.With(api.InterceptorRequest()).Route("/my-go-oracle-app", func(r chi.Router) {
 			r.Use(api.NewMetricMiddleware())
-			// dashboard group
-			r.Route("/dashboard", func(r chi.Router) {
-
+			// members group
+			r.Route("/members", func(r chi.Router) {
+				r.Get("/{id}", member.GetMemberById)
 			})
 
 		})
