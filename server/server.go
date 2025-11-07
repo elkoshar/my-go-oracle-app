@@ -16,7 +16,6 @@ import (
 func InitHttp(config *config.Config) error {
 	// baseRepo := getBaseRepository(config)
 	baseRepo := getBaseRepository(config)
-	fmt.Printf("\n\n config: %v \n\n", config)
 
 	memberRepo := member.NewMemberRepository(baseRepo)
 	memberService := member.NewMemberService(memberRepo)
@@ -36,7 +35,6 @@ func getBaseRepository(config *config.Config) service.BaseRepository {
 	//init db config
 	masterDB, err := sql.OpenMasterDB("godror", dbMasterURL, config.OracleMaxOpenConnection, config.OracleMaxIdleConnection, config.OracleConnMaxIdleTime, config.OracleConnMaxLifeTime)
 	if err != nil {
-		fmt.Printf("\n\n dbMasterURL: %s \n\n", dbMasterURL)
 		slog.Error(fmt.Sprintf("init master DB failed: %v", err))
 		os.Exit(1)
 	}
