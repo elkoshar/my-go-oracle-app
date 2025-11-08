@@ -11,9 +11,9 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"oracle.com/oracle/my-go-oracle-app/constants"
 	"oracle.com/oracle/my-go-oracle-app/infra/database"
 	oracle "oracle.com/oracle/my-go-oracle-app/infra/database/sql"
+	"oracle.com/oracle/my-go-oracle-app/pkg/constants"
 )
 
 const logName = "[Base Repository][Operation]"
@@ -284,7 +284,7 @@ func (r *BaseRepository) GenerateConditional(sqlParameter SqlParameter) (string,
 			}
 			switch sqlParameter.Params[i].Operand {
 			case constants.IN:
-				tempQuery := fmt.Sprintf("%s %s (?)", sqlParameter.Params[i].Field, constants.IN)
+				tempQuery := fmt.Sprintf("%s %s (:%d)", sqlParameter.Params[i].Field, constants.IN, i)
 				tempQuery, tempArgs, _ := sqlx.In(tempQuery, sqlParameter.Params[i].Value)
 				sql.WriteString(tempQuery)
 				args = append(args, tempArgs...)
@@ -306,12 +306,12 @@ func (r *BaseRepository) GenerateConditional(sqlParameter SqlParameter) (string,
 			case constants.IS_NULL:
 				sql.WriteString(fmt.Sprintf("%s %s", sqlParameter.Params[i].Field, sqlParameter.Params[i].Operand))
 			case constants.NOT_IN:
-				tempQuery := fmt.Sprintf("%s %s (?)", sqlParameter.Params[i].Field, constants.NOT_IN)
+				tempQuery := fmt.Sprintf("%s %s (:%d)", sqlParameter.Params[i].Field, constants.NOT_IN, i)
 				tempQuery, tempArgs, _ := sqlx.In(tempQuery, sqlParameter.Params[i].Value)
 				sql.WriteString(tempQuery)
 				args = append(args, tempArgs...)
 			default:
-				sql.WriteString(fmt.Sprintf("%s %s ?", sqlParameter.Params[i].Field, sqlParameter.Params[i].Operand))
+				sql.WriteString(fmt.Sprintf("%s %s :%d", sqlParameter.Params[i].Field, sqlParameter.Params[i].Operand, i))
 				args = append(args, sqlParameter.Params[i].Value)
 			}
 			if i < len(sqlParameter.Params)-1 {
@@ -330,7 +330,8 @@ func (r *BaseRepository) GenerateQuerySelectWithParams(query string, sqlParamete
 		query = r.GenerateQuerySelectFrom(sqlParameter)
 	}
 	sql.WriteString(query)
-
+	totalParams := len(sqlParameter.Params)
+	totalOrder := len(sqlParameter.OrderBy)
 	if len(sqlParameter.Joins) > 0 {
 		for _, join := range sqlParameter.Joins {
 			sql.WriteString(fmt.Sprintf(" %s JOIN %s", join.JoinType, join.Table))
@@ -339,9 +340,9 @@ func (r *BaseRepository) GenerateQuerySelectWithParams(query string, sqlParamete
 			}
 			sql.WriteString(fmt.Sprintf(" ON %s", join.On))
 
-			for _, cond := range join.Conditions {
+			for i, cond := range join.Conditions {
 				// to be: AND io.tablename IN (?, ?)
-				sqlCond, condArgs := buildCondition(cond)
+				sqlCond, condArgs := buildCondition(cond, i)
 				sql.WriteString(" AND " + sqlCond)
 
 				argsJoin = append(argsJoin, condArgs...)
@@ -375,13 +376,11 @@ func (r *BaseRepository) GenerateQuerySelectWithParams(query string, sqlParamete
 	}
 
 	if sqlParameter.Limit != 0 {
-		sql.WriteString(" limit ?")
-		args = append(args, sqlParameter.Limit)
-	}
-
-	if sqlParameter.Offset != 0 {
-		sql.WriteString(" offset ?")
+		sql.WriteString(fmt.Sprintf(" OFFSET :%d ROWS", totalParams+totalOrder+1))
 		args = append(args, sqlParameter.Offset)
+
+		sql.WriteString(fmt.Sprintf(" FETCH NEXT :%d ROWS ONLY", totalParams+totalOrder+2))
+		args = append(args, sqlParameter.Limit)
 	}
 
 	if len(argsJoin) > 0 {
@@ -391,20 +390,20 @@ func (r *BaseRepository) GenerateQuerySelectWithParams(query string, sqlParamete
 	return sql.String(), args
 }
 
-func buildCondition(param FilterParam) (string, []interface{}) {
+func buildCondition(param FilterParam, i int) (string, []interface{}) {
 	switch v := param.Value.(type) {
 	case []string:
 		placeholders := make([]string, len(v))
 		args := make([]interface{}, len(v))
 		for i, val := range v {
-			placeholders[i] = "?"
+			placeholders[i] = fmt.Sprintf(":%d", i)
 			args[i] = val
 		}
 		return fmt.Sprintf("%s %s (%s)", param.Field, param.Operand, strings.Join(placeholders, ", ")), args
 	case string:
-		return fmt.Sprintf("%s %s ?", param.Field, param.Operand), []interface{}{v}
+		return fmt.Sprintf("%s %s :%d", param.Field, param.Operand, i), []interface{}{v}
 	default:
-		return fmt.Sprintf("%s %s ?", param.Field, param.Operand), []interface{}{param.Value}
+		return fmt.Sprintf("%s %s :%d", param.Field, param.Operand, i), []interface{}{param.Value}
 	}
 }
 

@@ -32,6 +32,7 @@ func getBaseRepository(config *config.Config) service.BaseRepository {
 	dbMasterURL := fmt.Sprintf("%s/%s@%s:%s/%s", config.OracleMasterUsername, config.OracleMasterPassword, config.OracleMasterHost, config.OracleMasterPort, config.OracleMasterDatabase)
 	dbSlaveURL := fmt.Sprintf("%s/%s@%s:%s/%s", config.OracleSlaveUsername, config.OracleSlavePassword, config.OracleSlaveHost, config.OracleSlavePort, config.OracleSlaveDatabase)
 
+	fmt.Printf("\n\n dbMasterURL:%s \n\n", dbMasterURL)
 	//init db config
 	masterDB, err := sql.OpenMasterDB("godror", dbMasterURL, config.OracleMaxOpenConnection, config.OracleMaxIdleConnection, config.OracleConnMaxIdleTime, config.OracleConnMaxLifeTime)
 	if err != nil {

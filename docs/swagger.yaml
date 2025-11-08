@@ -27,12 +27,21 @@ definitions:
       serverTime:
         type: integer
     type: object
+  oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo:
+    properties:
+      address:
+        type: string
+      age:
+        type: integer
+      salary:
+        type: integer
+    type: object
   oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse:
     properties:
       id:
         type: integer
       info:
-        type: string
+        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo'
       name:
         type: string
     type: object
@@ -46,6 +55,71 @@ info:
   title: MY GO ORACLE APP API
   version: "0.1"
 paths:
+  /members/:
+    get:
+      consumes:
+      - application/json
+      description: GetAllMembers handles request for Get Member by Id
+      parameters:
+      - default: id
+        description: accept language
+        in: header
+        name: Accept-Language
+        required: true
+        type: string
+      - description: limit data
+        in: query
+        name: limit
+        type: string
+      - description: page data
+        in: query
+        name: page
+        type: integer
+      - description: name filter
+        in: query
+        name: name
+        type: string
+      - description: address filter
+        in: query
+        name: address
+        type: string
+      - description: ageStart filter
+        in: query
+        name: ageStart
+        type: string
+      - description: ageEnd filter
+        in: query
+        name: ageEnd
+        type: string
+      - description: salaryStart filter
+        in: query
+        name: salaryStart
+        type: string
+      - description: salaryEnd filter
+        in: query
+        name: salaryEnd
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Response
+          schema:
+            allOf:
+            - $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_pkg_response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+        "500":
+          description: InternalServerError
+      summary: Get All  by Id
+      tags:
+      - Member
   /members/{id}:
     get:
       consumes:

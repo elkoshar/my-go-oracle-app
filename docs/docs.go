@@ -19,6 +19,108 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/members/": {
+            "get": {
+                "description": "GetAllMembers handles request for Get Member by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Member"
+                ],
+                "summary": "Get All  by Id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "id",
+                        "description": "accept language",
+                        "name": "Accept-Language",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit data",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page data",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "name filter",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "address filter",
+                        "name": "address",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ageStart filter",
+                        "name": "ageStart",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ageEnd filter",
+                        "name": "ageEnd",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "salaryStart filter",
+                        "name": "salaryStart",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "salaryEnd filter",
+                        "name": "salaryEnd",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Response",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "InternalServerError"
+                    }
+                }
+            }
+        },
         "/members/{id}": {
             "get": {
                 "description": "GetMemberById handles request for Get Member by Id",
@@ -116,6 +218,20 @@ const docTemplate = `{
                 }
             }
         },
+        "oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "age": {
+                    "type": "integer"
+                },
+                "salary": {
+                    "type": "integer"
+                }
+            }
+        },
         "oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse": {
             "type": "object",
             "properties": {
@@ -123,7 +239,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "info": {
-                    "type": "string"
+                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo"
                 },
                 "name": {
                     "type": "string"

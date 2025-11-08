@@ -73,6 +73,7 @@ func handler(checker api.HealthChecker, cfg *config.Config) http.Handler {
 			r.Use(api.NewMetricMiddleware())
 			// members group
 			r.Route("/members", func(r chi.Router) {
+				r.Get("/", member.GetAllMembers)
 				r.Get("/{id}", member.GetMemberById)
 			})
 

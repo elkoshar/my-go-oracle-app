@@ -115,8 +115,14 @@ func Get() *Config {
 }
 
 func setDefault() {
-	//redis default
-	viper.SetDefault("REDIS_CACHE_ADDRESS", "redis1:6379,redis2:6379,redis3:6379")
+	viper.SetDefault("HTTP_READ_TIMEOUT", "10s")
+	viper.SetDefault("HTTP_WRITE_TIMEOUT", "10s")
+	viper.SetDefault("HTTP_INBOUND_TIMEOUT", "10s")
+	viper.SetDefault("HTTP_TIMEOUT", "10s")
+	viper.SetDefault("HTTP_DEBUG", true)
+	viper.SetDefault("HTTP_MAX_IDLE_CONNECTIONS", 100)
+	viper.SetDefault("HTTP_MAX_IDLE_CONNECTIONS_PER_HOST", 100)
+	viper.SetDefault("HTTP_IDLE_CONNECTION_TIMEOUT", "10s")
 }
 
 // postprocess several config

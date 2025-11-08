@@ -75,3 +75,23 @@ type JoinClause struct {
 	JoinType   string        `json:"joinType"`             // e.g. "LEFT", "INNER"
 	Conditions []FilterParam `json:"conditions,omitempty"` // optional
 }
+type Pagination struct {
+	LastDate  string `json:"last_date,omitempty" example:"2021-05-31T08:20:02Z"`
+	TotalData int64  `json:"totalData,omitempty"`
+	NextPage  bool   `json:"nextPage"`
+	LastID    int64  `json:"lastId,omitempty"`
+}
+
+func MakePagination(count int64, params SqlParameter, lenData int) Pagination {
+	next := true
+	if lenData == 0 {
+		next = false
+	}
+	if int64(params.Offset+lenData) >= count {
+		next = false
+	}
+	return Pagination{
+		TotalData: count,
+		NextPage:  next,
+	}
+}
