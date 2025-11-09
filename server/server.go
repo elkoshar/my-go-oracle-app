@@ -29,11 +29,35 @@ func InitHttp(config *config.Config) error {
 }
 
 func getBaseRepository(config *config.Config) service.BaseRepository {
-	dbMasterURL := fmt.Sprintf("%s/%s@%s:%s/%s", config.OracleMasterUsername, config.OracleMasterPassword, config.OracleMasterHost, config.OracleMasterPort, config.OracleMasterDatabase)
-	dbSlaveURL := fmt.Sprintf("%s/%s@%s:%s/%s", config.OracleSlaveUsername, config.OracleSlavePassword, config.OracleSlaveHost, config.OracleSlavePort, config.OracleSlaveDatabase)
 
-	fmt.Printf("\n\n dbMasterURL:%s \n\n", dbMasterURL)
+	var dbMasterURL, dbSlaveURL string
+	if config.OracleLibDir == "" {
+		dbMasterURL = fmt.Sprintf("%s/%s@%s:%s/%s", config.OracleMasterUsername, config.OracleMasterPassword, config.OracleMasterHost, config.OracleMasterPort, config.OracleMasterDatabase)
+		dbSlaveURL = fmt.Sprintf("%s/%s@%s:%s/%s", config.OracleSlaveUsername, config.OracleSlavePassword, config.OracleSlaveHost, config.OracleSlavePort, config.OracleSlaveDatabase)
+	} else {
+		masterConn := fmt.Sprintf("%s:%s/%s", config.OracleMasterHost, config.OracleMasterPort, config.OracleMasterDatabase)
+		slaveConn := fmt.Sprintf("%s:%s/%s", config.OracleSlaveHost, config.OracleSlavePort, config.OracleSlaveDatabase)
+		dbMasterURL = fmt.Sprintf(`user="%s"
+                                password="%s"
+                                connectString="%s"
+                                libDir="%s"`,
+			config.OracleMasterUsername,
+			config.OracleMasterPassword,
+			masterConn,
+			config.OracleLibDir,
+		)
+		dbSlaveURL = fmt.Sprintf(`user="%s"
+                                password="%s"
+                                connectString="%s"
+                                libDir="%s"`,
+			config.OracleSlaveUsername,
+			config.OracleSlavePassword,
+			slaveConn,
+			config.OracleLibDir,
+		)
+	}
 	//init db config
+
 	masterDB, err := sql.OpenMasterDB("godror", dbMasterURL, config.OracleMaxOpenConnection, config.OracleMaxIdleConnection, config.OracleConnMaxIdleTime, config.OracleConnMaxLifeTime)
 	if err != nil {
 		slog.Error(fmt.Sprintf("init master DB failed: %v", err))
@@ -44,6 +68,7 @@ func getBaseRepository(config *config.Config) service.BaseRepository {
 		slog.Error(fmt.Sprintf("init slave DB failed: %v", err))
 		os.Exit(1)
 	}
+
 	return service.BaseRepository{
 		MasterDB: masterDB,
 		SlaveDB:  slaveDB,

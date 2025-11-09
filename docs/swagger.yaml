@@ -86,11 +86,11 @@ paths:
       - description: ageStart filter
         in: query
         name: ageStart
-        type: string
+        type: integer
       - description: ageEnd filter
         in: query
         name: ageEnd
-        type: string
+        type: integer
       - description: salaryStart filter
         in: query
         name: salaryStart

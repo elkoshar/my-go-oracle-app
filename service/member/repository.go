@@ -53,15 +53,12 @@ func (mr *memberRepository) FindById(ctx context.Context, ID int64) (member Memb
 
 func (mr *memberRepository) GetAllMembers(ctx context.Context, param service.SqlParameter) (members []Member, err error) {
 	query, args := mr.GenerateQuerySelectWithParams(getAllMemberQuery, param)
-	fmt.Printf("\n query %s \n", query)
-	fmt.Printf("\n args %v \n", args)
 
 	err = mr.SelectOperations(ctx, &members, query, args...)
 	if err != nil {
 		slog.WarnContext(ctx, fmt.Sprintf("failed to fetch data: %v", err), slog.String("query", query), slog.Any("args", args))
 		return
 	}
-	fmt.Printf("\n members %v \n", members)
 
 	return
 }

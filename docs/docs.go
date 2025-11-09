@@ -66,13 +66,13 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "ageStart filter",
                         "name": "ageStart",
                         "in": "query"
                     },
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "ageEnd filter",
                         "name": "ageEnd",
                         "in": "query"

@@ -44,7 +44,6 @@ func (m *memberService) FindAll(ctx context.Context, param service.SqlParameter)
 		slog.WarnContext(ctx, fmt.Sprintf("Failed to get member data: %v", err))
 		return
 	}
-	fmt.Printf("\n\n memberEntities: %v \n\n", memberEntities)
 	result := make([]MemberResponse, len(memberEntities))
 	for idx, data := range memberEntities {
 		result[idx] = data.ToResponse()

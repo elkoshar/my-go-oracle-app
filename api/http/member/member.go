@@ -30,7 +30,7 @@ func Init(service api.MemberService) {
 }
 
 var variableFilterMapping = map[string]service.FilterParam{
-	"name":        {Field: "M.NAME", Operand: constants.LIKE},
+	"name":        {Field: "UPPER(M.NAME)", Operand: constants.LIKE},
 	"address":     {Field: "JSON_VALUE(INFO, '$.address')", Operand: constants.LIKE},
 	"ageStart":    {Field: "JSON_VALUE(INFO, '$.age')", Operand: constants.GREATER_THAN_EQUAL},
 	"ageEnd":      {Field: "JSON_VALUE(INFO, '$.age')", Operand: constants.LESS_THAN_EQUAL},
@@ -97,8 +97,8 @@ func GetMemberById(w http.ResponseWriter, r *http.Request) {
 // @Param page query integer false "page data"
 // @Param name query string false "name filter"
 // @Param address query string false "address filter"
-// @Param ageStart query string false "ageStart filter"
-// @Param ageEnd query string false "ageEnd filter"
+// @Param ageStart query int false "ageStart filter"
+// @Param ageEnd query int false "ageEnd filter"
 // @Param salaryStart query string false "salaryStart filter"
 // @Param salaryEnd query string false "salaryEnd filter"
 // @Success 200 {object} response.Response{data=[]entity.MemberResponse} "Success Response"

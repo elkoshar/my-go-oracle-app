@@ -34,5 +34,7 @@ type (
 		OracleMaxIdleConnection int           `mapstructure:"ORACLE_MAX_IDLE_CONNECTION"`
 		OracleConnMaxIdleTime   time.Duration `mapstructure:"ORACLE_CONN_MAX_IDLE_TIME"`
 		OracleConnMaxLifeTime   time.Duration `mapstructure:"ORACLE_CONN_MAX_LIFE_TIME"`
+
+		OracleLibDir string `mapstructure:"ORACLE_LIB_DIR"`
 	}
 )

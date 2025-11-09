@@ -53,6 +53,7 @@ func Init(opts ...Option) error {
 	config.OracleSlaveDatabase = viper.GetString("ORACLE_SLAVE_DATABASE")
 	config.OracleSlaveUsername = viper.GetString("ORACLE_SLAVE_USERNAME")
 	config.OracleSlavePassword = viper.GetString("ORACLE_SLAVE_PASSWORD")
+	config.OracleLibDir = viper.GetString("ORACLE_LIB_DIR")
 
 	//set default value for all config
 	setDefault()
