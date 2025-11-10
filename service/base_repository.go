@@ -164,7 +164,62 @@ func (r *BaseRepository) GetWithParameter(ctx context.Context, dest interface{},
 }
 
 // WriteOrUpdateOperation will execute query.
-func (r *BaseRepository) WriteOrUpdateOperation(ctx context.Context, query string, args ...interface{}) (int64, error) {
+func (r *BaseRepository) WriteOrUpdateOperation(ctx context.Context, query string, returnedID *int64, args ...interface{}) (int64, error) {
+	slog.InfoContext(ctx, fmt.Sprintf("query= %v, paramValue=%v, returnedID=%v", query, args, returnedID))
+
+	var (
+		result sql.Result
+		err    error
+	)
+
+	// Check if the operation is a RETURNING INTO query (must have a pointer to the returned ID)
+	isReturningInto := strings.HasPrefix(strings.ToUpper(query), "INSERT") && returnedID != nil
+
+	txConn := ctx.Value(constants.CONTEXT_TRANSACTION)
+
+	if isReturningInto {
+		// --- Special Handling for Oracle RETURNING INTO ---
+		var row *sql.Row
+		if txConn == nil {
+			// Use QueryRowContext for the master database connection
+			row = r.MasterDB.QueryRowContext(ctx, query, args...)
+		} else {
+			// Use QueryRowContext for the transaction connection
+			row = txConn.(*sqlx.Tx).QueryRowContext(ctx, query, args...)
+		}
+
+		// Scan the result into the provided ID pointer.
+		// Note: godror sets the output parameter before Scan, but Scan is needed to check for errors.
+		err = row.Scan(returnedID)
+
+		// sql.ErrNoRows might be returned if the RETURNING INTO clause fails,
+		// but for a successful INSERT, we still treat it as a successful row change.
+		if err != nil && err != sql.ErrNoRows {
+			return 0, err
+		}
+
+		// Return 1 row affected since the INSERT was successful and the ID was captured.
+		return 1, nil
+
+	} else {
+		// --- Standard ExecContext for UPDATE, DELETE, or simple INSERT ---
+
+		if txConn == nil {
+			result, err = r.MasterDB.ExecContext(ctx, query, args...)
+		} else {
+			result, err = txConn.(*sqlx.Tx).ExecContext(ctx, query, args...)
+		}
+
+		if err != nil {
+			return 0, err
+		}
+
+		// Return RowsAffected for standard UPDATE, DELETE, and simple INSERTs.
+		return result.RowsAffected()
+	}
+}
+
+func (r *BaseRepository) WriteOrUpdateOperation2(ctx context.Context, query string, args ...interface{}) (int64, error) {
 	slog.InfoContext(ctx, fmt.Sprintf("query= %v, paramValue=%v,", query, args))
 
 	var (
@@ -193,7 +248,7 @@ func (r *BaseRepository) WriteOrUpdateOperation(ctx context.Context, query strin
 func (r *BaseRepository) Insert(ctx context.Context, sqlParameter SqlParameter) (int64, error) {
 	sql, args := r.GenerateQueryInsert(sqlParameter)
 
-	res, err := r.WriteOrUpdateOperation(ctx, sql, args...)
+	res, err := r.WriteOrUpdateOperation(ctx, sql, nil, args...)
 
 	return res, err
 }
@@ -201,7 +256,7 @@ func (r *BaseRepository) Insert(ctx context.Context, sqlParameter SqlParameter) 
 func (r *BaseRepository) Update(ctx context.Context, sqlParameter SqlParameter) (int64, error) {
 	sql, args := r.GenerateQueryUpdate(sqlParameter)
 
-	res, err := r.WriteOrUpdateOperation(ctx, sql, args...)
+	res, err := r.WriteOrUpdateOperation(ctx, sql, nil, args...)
 
 	return res, err
 }
@@ -210,7 +265,7 @@ func (r *BaseRepository) Delete(ctx context.Context, sqlParameter SqlParameter) 
 	sql := fmt.Sprintf("DELETE FROM %s", sqlParameter.TableName)
 	conditional, args := r.GenerateConditional(sqlParameter)
 	sql += conditional
-	res, err := r.WriteOrUpdateOperation(ctx, sql, args...)
+	res, err := r.WriteOrUpdateOperation(ctx, sql, nil, args...)
 
 	return res, err
 }

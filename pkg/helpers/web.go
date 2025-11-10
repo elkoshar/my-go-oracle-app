@@ -1,11 +1,13 @@
 package helpers
 
 import (
+	"encoding/json"
 	"net/http"
 	"reflect"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"oracle.com/oracle/my-go-oracle-app/pkg/validator"
 )
 
 func GetUrlPathString(r *http.Request, key string) string {
@@ -55,4 +57,18 @@ func IsEmpty(object interface{}) bool {
 	}
 
 	return false
+}
+
+func ParseBodyAndValidate(r *http.Request, req interface{}) error {
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		return err
+	}
+
+	_, err = validator.ValidateStruct(req)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

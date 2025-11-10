@@ -121,3 +121,133 @@ func GetAllMembers(w http.ResponseWriter, r *http.Request) {
 	resp.Data = result
 	resp.Pagination = page
 }
+
+// CreateMember : HTTP Handler for Create Member
+// @Summary Create Member
+// @Description CreateMember handles request for creating a new member
+// @Tags Member
+// @Accept json
+// @Produce json
+// @Param Accept-Language header string true "accept language" default(id)
+// @Param member body entity.MemberRequest true "Member Request Body"
+// @Success 200 {object} response.Response{data=entity.MemberResponse} "Success Response"
+// @Failure 400 "Bad Request"
+// @Failure 500 "InternalServerError"
+// @Router /members/ [POST]
+// CreateMember
+func CreateMember(w http.ResponseWriter, r *http.Request) {
+	resp := response.Response{}
+	defer resp.Render(w, r)
+
+	var (
+		err error
+		req entity.MemberRequest
+	)
+
+	err = helpers.ParseBodyAndValidate(r, &req)
+	if err != nil {
+		resp.SetError(err, http.StatusBadRequest)
+		slog.WarnContext(r.Context(), fmt.Sprintf(ErrParseValidateMsg, err))
+		return
+	}
+
+	result, err := memberService.CreateMember(r.Context(), &req)
+	if err != nil {
+		resp.SetError(err, http.StatusInternalServerError)
+		slog.WarnContext(r.Context(), fmt.Sprintf(ErrCreateDataMsg, err),
+			slog.Any("request", req))
+		return
+	}
+
+	resp.Data = result
+
+}
+
+// UpdateMember : HTTP Handler for Update Member
+// @Summary Update Member
+// @Description UpdateMember handles request for updating a member
+// @Tags Member
+// @Accept json
+// @Produce json
+// @Param Accept-Language header string true "accept language" default(id)
+// @Param id path string true "id of Member"
+// @Param member body entity.MemberRequest true "Member Request Body"
+// @Success 200 {object} response.Response{data=entity.MemberResponse} "Success Response"
+// @Failure 400 "Bad Request"
+// @Failure 500 "InternalServerError"
+// @Router /members/{id} [PUT]
+// UpdateMember
+func UpdateMember(w http.ResponseWriter, r *http.Request) {
+	resp := response.Response{}
+	defer resp.Render(w, r)
+
+	var (
+		err error
+		req entity.MemberRequest
+	)
+
+	id, err := helpers.GetUrlPathInt64(r, "id")
+	if err != nil {
+		slog.WarnContext(r.Context(), fmt.Sprintf(ErrParseUrlParamMsg, err))
+		resp.SetError(err, http.StatusBadRequest)
+		return
+	}
+
+	err = helpers.ParseBodyAndValidate(r, &req)
+	if err != nil {
+		slog.WarnContext(r.Context(), fmt.Sprintf(ErrParseValidateMsg, err))
+		resp.SetError(err, http.StatusBadRequest)
+		return
+	}
+
+	result, err := memberService.UpdateMember(r.Context(), id, &req)
+	if err != nil {
+		resp.SetError(err, http.StatusInternalServerError)
+		slog.WarnContext(r.Context(), fmt.Sprintf("failed to update member data", err),
+			slog.Any("request", req))
+		return
+	}
+
+	resp.Data = result
+
+}
+
+// DeleteMember : HTTP Handler for Delete Member
+// @Summary Delete Member
+// @Description DeleteMember handles request for deleting a member
+// @Tags Member
+// @Accept json
+// @Produce json
+// @Param Accept-Language header string true "accept language" default(id)
+// @Param id path string true "id of Member"
+// @Success 200 {object} response.Response{data=bool} "Success Response"
+// @Failure 400 "Bad Request"
+// @Failure 500 "InternalServerError"
+// @Router /members/{id} [DELETE]
+// DeleteMember
+func DeleteMember(w http.ResponseWriter, r *http.Request) {
+	resp := response.Response{}
+	defer resp.Render(w, r)
+
+	var (
+		err error
+	)
+
+	id, err := helpers.GetUrlPathInt64(r, "id")
+	if err != nil {
+		slog.WarnContext(r.Context(), fmt.Sprintf(ErrParseUrlParamMsg, err))
+		resp.SetError(err, http.StatusBadRequest)
+		return
+	}
+
+	result, err := memberService.DeleteMember(r.Context(), id)
+	if err != nil {
+		resp.SetError(err, http.StatusInternalServerError)
+		slog.WarnContext(r.Context(), fmt.Sprintf("failed to delete member data", err),
+			slog.Int64("id", id))
+		return
+	}
+
+	resp.Data = result
+
+}

@@ -12,6 +12,11 @@ type Member struct {
 	entity.BaseEntity
 }
 
+type MemberRequest struct {
+	Name string     `json:"name"`
+	Info MemberInfo `json:"info"`
+}
+
 type MemberResponse struct {
 	Id   int64      `json:"id"`
 	Name string     `json:"name"`
@@ -24,14 +29,22 @@ type MemberInfo struct {
 	Age     int    `json:"age"`
 }
 
-func (c *Member) ToResponse() MemberResponse {
+func (m *Member) ToResponse() MemberResponse {
 
 	var info MemberInfo
-	json.Unmarshal([]byte(c.Info), &info)
+	json.Unmarshal([]byte(m.Info), &info)
 
 	return MemberResponse{
-		Id:   c.BaseEntity.Id,
-		Name: c.Name,
+		Id:   m.BaseEntity.Id,
+		Name: m.Name,
 		Info: info,
+	}
+}
+func (m *MemberRequest) ToEntity() Member {
+	infoBytes, _ := json.Marshal(m.Info)
+
+	return Member{
+		Name: m.Name,
+		Info: string(infoBytes),
 	}
 }

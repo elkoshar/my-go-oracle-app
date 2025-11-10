@@ -75,6 +75,9 @@ func handler(checker api.HealthChecker, cfg *config.Config) http.Handler {
 			r.Route("/members", func(r chi.Router) {
 				r.Get("/", member.GetAllMembers)
 				r.Get("/{id}", member.GetMemberById)
+				r.Post("/", member.CreateMember)
+				r.Put("/{id}", member.UpdateMember)
+				r.Delete("/{id}", member.DeleteMember)
 			})
 
 		})

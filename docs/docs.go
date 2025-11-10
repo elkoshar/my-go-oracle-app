@@ -119,6 +119,64 @@ const docTemplate = `{
                         "description": "InternalServerError"
                     }
                 }
+            },
+            "post": {
+                "description": "CreateMember handles request for creating a new member",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Member"
+                ],
+                "summary": "Create Member",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "id",
+                        "description": "accept language",
+                        "name": "Accept-Language",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Member Request Body",
+                        "name": "member",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Response",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "InternalServerError"
+                    }
+                }
             }
         },
         "/members/{id}": {
@@ -164,6 +222,127 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "InternalServerError"
+                    }
+                }
+            },
+            "put": {
+                "description": "UpdateMember handles request for updating a member",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Member"
+                ],
+                "summary": "Update Member",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "id",
+                        "description": "accept language",
+                        "name": "Accept-Language",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of Member",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Member Request Body",
+                        "name": "member",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Response",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "InternalServerError"
+                    }
+                }
+            },
+            "delete": {
+                "description": "DeleteMember handles request for deleting a member",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Member"
+                ],
+                "summary": "Delete Member",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "id",
+                        "description": "accept language",
+                        "name": "Accept-Language",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of Member",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Response",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "boolean"
                                         }
                                     }
                                 }
@@ -229,6 +408,17 @@ const docTemplate = `{
                 },
                 "salary": {
                     "type": "integer"
+                }
+            }
+        },
+        "oracle_com_oracle_my-go-oracle-app_service_member.MemberRequest": {
+            "type": "object",
+            "properties": {
+                "info": {
+                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

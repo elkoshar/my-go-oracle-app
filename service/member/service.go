@@ -15,6 +15,9 @@ type memberService struct {
 type MemberService interface {
 	FindById(ctx context.Context, id int64) (MemberResponse, error)
 	FindAll(ctx context.Context, param service.SqlParameter) ([]MemberResponse, service.Pagination, error)
+	CreateMember(ctx context.Context, data *MemberRequest) (MemberResponse, error)
+	UpdateMember(ctx context.Context, id int64, data *MemberRequest) (MemberResponse, error)
+	DeleteMember(ctx context.Context, id int64) (bool, error)
 }
 
 func NewMemberService(mr MemberRepository) MemberService {
@@ -58,4 +61,61 @@ func (m *memberService) FindAll(ctx context.Context, param service.SqlParameter)
 	page = service.MakePagination(count, param, len)
 
 	return result, page, nil
+}
+
+func (m *memberService) CreateMember(ctx context.Context, data *MemberRequest) (MemberResponse, error) {
+
+	var (
+		response MemberResponse
+	)
+
+	member := data.ToEntity()
+
+	id, err := m.mr.CreateMember(ctx, &member)
+	if err != nil {
+		slog.WarnContext(ctx, fmt.Sprintf("failed create member = %v, err = %v", data, err))
+		return response, fmt.Errorf("err:%s", err.Error())
+	}
+
+	response = member.ToResponse()
+	response.Id = id
+
+	return response, nil
+
+}
+func (m *memberService) UpdateMember(ctx context.Context, id int64, data *MemberRequest) (MemberResponse, error) {
+
+	var (
+		response MemberResponse
+	)
+
+	member := data.ToEntity()
+
+	_, err := m.mr.UpdateMember(ctx, id, &member)
+	if err != nil {
+		slog.WarnContext(ctx, fmt.Sprintf("failed update member = %v, err = %v", data, err))
+		return response, fmt.Errorf("err:%s", err.Error())
+	}
+
+	memberEntity, err := m.mr.FindById(ctx, id)
+	if err != nil {
+		slog.WarnContext(ctx, fmt.Sprintf("Failed to get member data after update: %v", err), slog.Int64("id", id))
+		return response, err
+	}
+
+	response = memberEntity.ToResponse()
+
+	return response, nil
+
+}
+
+func (m *memberService) DeleteMember(ctx context.Context, id int64) (bool, error) {
+
+	_, err := m.mr.DeleteMember(ctx, id)
+	if err != nil {
+		slog.WarnContext(ctx, fmt.Sprintf("failed delete member id = %v, err = %v", id, err))
+		return false, fmt.Errorf("err:%s", err.Error())
+	}
+
+	return true, nil
 }

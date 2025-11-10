@@ -36,6 +36,13 @@ definitions:
       salary:
         type: integer
     type: object
+  oracle_com_oracle_my-go-oracle-app_service_member.MemberRequest:
+    properties:
+      info:
+        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo'
+      name:
+        type: string
+    type: object
   oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse:
     properties:
       id:
@@ -120,7 +127,78 @@ paths:
       summary: Get All  by Id
       tags:
       - Member
+    post:
+      consumes:
+      - application/json
+      description: CreateMember handles request for creating a new member
+      parameters:
+      - default: id
+        description: accept language
+        in: header
+        name: Accept-Language
+        required: true
+        type: string
+      - description: Member Request Body
+        in: body
+        name: member
+        required: true
+        schema:
+          $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Response
+          schema:
+            allOf:
+            - $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse'
+              type: object
+        "400":
+          description: Bad Request
+        "500":
+          description: InternalServerError
+      summary: Create Member
+      tags:
+      - Member
   /members/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: DeleteMember handles request for deleting a member
+      parameters:
+      - default: id
+        description: accept language
+        in: header
+        name: Accept-Language
+        required: true
+        type: string
+      - description: id of Member
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Response
+          schema:
+            allOf:
+            - $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_pkg_response.Response'
+            - properties:
+                data:
+                  type: boolean
+              type: object
+        "400":
+          description: Bad Request
+        "500":
+          description: InternalServerError
+      summary: Delete Member
+      tags:
+      - Member
     get:
       consumes:
       - application/json
@@ -154,6 +232,47 @@ paths:
         "500":
           description: InternalServerError
       summary: Get Member by Id
+      tags:
+      - Member
+    put:
+      consumes:
+      - application/json
+      description: UpdateMember handles request for updating a member
+      parameters:
+      - default: id
+        description: accept language
+        in: header
+        name: Accept-Language
+        required: true
+        type: string
+      - description: id of Member
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Member Request Body
+        in: body
+        name: member
+        required: true
+        schema:
+          $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Response
+          schema:
+            allOf:
+            - $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse'
+              type: object
+        "400":
+          description: Bad Request
+        "500":
+          description: InternalServerError
+      summary: Update Member
       tags:
       - Member
 swagger: "2.0"

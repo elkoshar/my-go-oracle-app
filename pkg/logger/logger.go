@@ -24,7 +24,7 @@ func getLevel(logLevelConfig string) slog.Level {
 	case "error":
 		return slog.LevelError
 	default:
-		return slog.LevelWarn
+		return slog.LevelInfo
 	}
 }
 
