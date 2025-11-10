@@ -81,18 +81,16 @@ func (mr *memberRepository) CountAll(ctx context.Context, params service.SqlPara
 }
 
 func (m memberRepository) CreateMember(ctx context.Context, data *Member) (lastInsertId int64, err error) {
-	outputParam := sql.Out{Dest: &lastInsertId}
-	returnedID := int64(0)
-	args := []interface{}{data.Name, data.Info, outputParam}
-	_, errIns := m.WriteOrUpdateOperation(ctx, createMemberQuery, &returnedID, args...)
+	var returnedID int64
+	args := []interface{}{data.Name, data.Info, sql.Out{Dest: &returnedID}}
+	_, err = m.WriteOrUpdateOperation(ctx, createMemberQuery, &returnedID, args...)
 
-	if errIns != nil {
-		slog.WarnContext(ctx, fmt.Sprintf("failed to execute query, member = %v, errInsert = %v", data, errIns))
-		return 0, errIns
+	if err != nil {
+		slog.WarnContext(ctx, fmt.Sprintf("failed to execute query, member = %v, errInsert = %v", data, err))
+		return 0, err
 	}
 
 	data.Id = returnedID
-
 	return returnedID, nil
 
 }

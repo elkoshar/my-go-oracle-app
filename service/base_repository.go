@@ -179,26 +179,20 @@ func (r *BaseRepository) WriteOrUpdateOperation(ctx context.Context, query strin
 
 	if isReturningInto {
 		// --- Special Handling for Oracle RETURNING INTO ---
-		var row *sql.Row
 		if txConn == nil {
-			// Use QueryRowContext for the master database connection
-			row = r.MasterDB.QueryRowContext(ctx, query, args...)
+			// Use ExecContext for the master database connection
+			_, err = r.MasterDB.ExecContext(ctx, query, args...)
 		} else {
-			// Use QueryRowContext for the transaction connection
-			row = txConn.(*sqlx.Tx).QueryRowContext(ctx, query, args...)
+			// Use ExecContext for the transaction connection
+			_, err = txConn.(*sqlx.Tx).ExecContext(ctx, query, args...)
 		}
 
-		// Scan the result into the provided ID pointer.
-		// Note: godror sets the output parameter before Scan, but Scan is needed to check for errors.
-		err = row.Scan(returnedID)
-
-		// sql.ErrNoRows might be returned if the RETURNING INTO clause fails,
-		// but for a successful INSERT, we still treat it as a successful row change.
-		if err != nil && err != sql.ErrNoRows {
+		if err != nil {
 			return 0, err
 		}
 
-		// Return 1 row affected since the INSERT was successful and the ID was captured.
+		// For Oracle's RETURNING INTO clause, the ID value was set by godror through the `sql.Out` parameter
+		// Return 1 row affected since the INSERT was successful and the ID was captured
 		return 1, nil
 
 	} else {

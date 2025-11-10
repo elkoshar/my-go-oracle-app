@@ -91,19 +91,17 @@ func (m *memberService) UpdateMember(ctx context.Context, id int64, data *Member
 
 	member := data.ToEntity()
 
+	// Set the member's ID since we're updating
+	member.Id = id
+
 	_, err := m.mr.UpdateMember(ctx, id, &member)
 	if err != nil {
 		slog.WarnContext(ctx, fmt.Sprintf("failed update member = %v, err = %v", data, err))
 		return response, fmt.Errorf("err:%s", err.Error())
 	}
 
-	memberEntity, err := m.mr.FindById(ctx, id)
-	if err != nil {
-		slog.WarnContext(ctx, fmt.Sprintf("Failed to get member data after update: %v", err), slog.Int64("id", id))
-		return response, err
-	}
-
-	response = memberEntity.ToResponse()
+	response = member.ToResponse()
+	response.Id = id
 
 	return response, nil
 

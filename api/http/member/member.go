@@ -203,7 +203,7 @@ func UpdateMember(w http.ResponseWriter, r *http.Request) {
 	result, err := memberService.UpdateMember(r.Context(), id, &req)
 	if err != nil {
 		resp.SetError(err, http.StatusInternalServerError)
-		slog.WarnContext(r.Context(), fmt.Sprintf("failed to update member data", err),
+		slog.WarnContext(r.Context(), fmt.Sprintf("failed to update member data: %v", err),
 			slog.Any("request", req))
 		return
 	}
@@ -243,7 +243,7 @@ func DeleteMember(w http.ResponseWriter, r *http.Request) {
 	result, err := memberService.DeleteMember(r.Context(), id)
 	if err != nil {
 		resp.SetError(err, http.StatusInternalServerError)
-		slog.WarnContext(r.Context(), fmt.Sprintf("failed to delete member data", err),
+		slog.WarnContext(r.Context(), fmt.Sprintf("failed to delete member data: %v", err),
 			slog.Int64("id", id))
 		return
 	}
