@@ -32,7 +32,7 @@ definitions:
       category:
         type: string
       level:
-        type: string
+        type: integer
     type: object
   oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo:
     properties:
@@ -59,6 +59,15 @@ definitions:
       info:
         $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo'
       name:
+        type: string
+      policy:
+        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.Policy'
+    type: object
+  oracle_com_oracle_my-go-oracle-app_service_member.Policy:
+    properties:
+      emergencyContact:
+        type: string
+      status:
         type: string
     type: object
 info:

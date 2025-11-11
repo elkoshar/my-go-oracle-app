@@ -428,7 +428,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "level": {
-                    "type": "string"
+                    "type": "integer"
                 }
             }
         },
@@ -470,6 +470,20 @@ const docTemplate = `{
                     "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "policy": {
+                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.Policy"
+                }
+            }
+        },
+        "oracle_com_oracle_my-go-oracle-app_service_member.Policy": {
+            "type": "object",
+            "properties": {
+                "emergencyContact": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
