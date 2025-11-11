@@ -7,9 +7,15 @@ import (
 )
 
 type Member struct {
-	Name string `db:"NAME"`
-	Info string `db:"INFO"`
+	Name   string          `db:"NAME"`
+	Info   string          `db:"INFO"`
+	Detail json.RawMessage `db:"DETAIL"`
 	entity.BaseEntity
+}
+
+type MemberDetail struct {
+	Category string `json:"category"`
+	Level    string `json:"level"`
 }
 
 type MemberRequest struct {
@@ -18,9 +24,10 @@ type MemberRequest struct {
 }
 
 type MemberResponse struct {
-	Id   int64      `json:"id"`
-	Name string     `json:"name"`
-	Info MemberInfo `json:"info"`
+	Id     int64        `json:"id"`
+	Name   string       `json:"name"`
+	Info   MemberInfo   `json:"info"`
+	Detail MemberDetail `json:"detail"`
 }
 
 type MemberInfo struct {
@@ -32,12 +39,15 @@ type MemberInfo struct {
 func (m *Member) ToResponse() MemberResponse {
 
 	var info MemberInfo
+	var detail MemberDetail
 	json.Unmarshal([]byte(m.Info), &info)
+	json.Unmarshal(m.Detail, &detail)
 
 	return MemberResponse{
-		Id:   m.BaseEntity.Id,
-		Name: m.Name,
-		Info: info,
+		Id:     m.BaseEntity.Id,
+		Name:   m.Name,
+		Info:   info,
+		Detail: detail,
 	}
 }
 func (m *MemberRequest) ToEntity() Member {

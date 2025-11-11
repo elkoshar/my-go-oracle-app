@@ -30,16 +30,19 @@ func Init(service api.MemberService) {
 }
 
 var variableFilterMapping = map[string]service.FilterParam{
-	"name":        {Field: "UPPER(M.NAME)", Operand: constants.LIKE},
+	"name":        {Field: "M.NAME", Operand: constants.LIKE},
 	"address":     {Field: "JSON_VALUE(INFO, '$.address')", Operand: constants.LIKE},
 	"ageStart":    {Field: "JSON_VALUE(INFO, '$.age')", Operand: constants.GREATER_THAN_EQUAL},
 	"ageEnd":      {Field: "JSON_VALUE(INFO, '$.age')", Operand: constants.LESS_THAN_EQUAL},
 	"salaryStart": {Field: "JSON_VALUE(INFO, '$.salary')", Operand: constants.GREATER_THAN_EQUAL},
 	"salaryEnd":   {Field: "JSON_VALUE(INFO, '$.salary')", Operand: constants.LESS_THAN_EQUAL},
+	"category":    {Field: "JSON_VALUE(DETAIL, '$.category')", Operand: constants.LIKE},
+	"level":       {Field: "JSON_VALUE(DETAIL, '$.level')", Operand: constants.LIKE},
 }
 
 var variableOrderMapping = map[string]string{
 	"name": "M.NAME",
+	"id":   "M.ID",
 }
 
 // GetMemberById : HTTP Handler for Get Member by Id
@@ -88,7 +91,7 @@ func GetMemberById(w http.ResponseWriter, r *http.Request) {
 
 // GetAllMembers : HTTP Handler for Get All Member
 // @Summary Get All  by Id
-// @Description GetAllMembers handles request for Get Member by Id
+// @Description GetAllMembers handles request for Get Members
 // @Tags Member
 // @Accept json
 // @Produce json
@@ -101,6 +104,10 @@ func GetMemberById(w http.ResponseWriter, r *http.Request) {
 // @Param ageEnd query int false "ageEnd filter"
 // @Param salaryStart query string false "salaryStart filter"
 // @Param salaryEnd query string false "salaryEnd filter"
+// @Param category query string false "category filter"
+// @Param level query string false "level filter"
+// @Param orderBy query string false "orderBy order by"
+// @Param orderType query string false "orderType asc/desc"
 // @Success 200 {object} response.Response{data=[]entity.MemberResponse} "Success Response"
 // @Failure 400 "Bad Request"
 // @Failure 500 "InternalServerError"

@@ -21,7 +21,7 @@ const docTemplate = `{
     "paths": {
         "/members/": {
             "get": {
-                "description": "GetAllMembers handles request for Get Member by Id",
+                "description": "GetAllMembers handles request for Get Members",
                 "consumes": [
                     "application/json"
                 ],
@@ -87,6 +87,30 @@ const docTemplate = `{
                         "type": "string",
                         "description": "salaryEnd filter",
                         "name": "salaryEnd",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "category filter",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "level filter",
+                        "name": "level",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "orderBy order by",
+                        "name": "orderBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "orderType asc/desc",
+                        "name": "orderType",
                         "in": "query"
                     }
                 ],
@@ -397,6 +421,17 @@ const docTemplate = `{
                 }
             }
         },
+        "oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                }
+            }
+        },
         "oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo": {
             "type": "object",
             "properties": {
@@ -425,6 +460,9 @@ const docTemplate = `{
         "oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse": {
             "type": "object",
             "properties": {
+                "detail": {
+                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail"
+                },
                 "id": {
                     "type": "integer"
                 },

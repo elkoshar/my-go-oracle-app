@@ -27,6 +27,13 @@ definitions:
       serverTime:
         type: integer
     type: object
+  oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail:
+    properties:
+      category:
+        type: string
+      level:
+        type: string
+    type: object
   oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo:
     properties:
       address:
@@ -45,6 +52,8 @@ definitions:
     type: object
   oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse:
     properties:
+      detail:
+        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail'
       id:
         type: integer
       info:
@@ -66,7 +75,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: GetAllMembers handles request for Get Member by Id
+      description: GetAllMembers handles request for Get Members
       parameters:
       - default: id
         description: accept language
@@ -105,6 +114,22 @@ paths:
       - description: salaryEnd filter
         in: query
         name: salaryEnd
+        type: string
+      - description: category filter
+        in: query
+        name: category
+        type: string
+      - description: level filter
+        in: query
+        name: level
+        type: string
+      - description: orderBy order by
+        in: query
+        name: orderBy
+        type: string
+      - description: orderType asc/desc
+        in: query
+        name: orderType
         type: string
       produces:
       - application/json
