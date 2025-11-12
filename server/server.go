@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 
+	"oracle.com/oracle/my-go-oracle-app/api"
 	httpapi "oracle.com/oracle/my-go-oracle-app/api/http"
 	config "oracle.com/oracle/my-go-oracle-app/configs"
 	"oracle.com/oracle/my-go-oracle-app/infra/database/sql"
@@ -23,6 +24,10 @@ func InitHttp(config *config.Config) error {
 	httpserver := httpapi.Server{
 		Cfg:           config,
 		MemberService: memberService,
+		HealthCheck: api.HealthChecker{
+			Master: baseRepo.MasterDB,
+			Slave:  baseRepo.SlaveDB,
+		},
 	}
 
 	return runHTTPServer(httpserver, config.ServerHttpPort)

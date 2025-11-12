@@ -20,27 +20,33 @@ func (h *HealthChecker) health(ctx context.Context) map[string]interface{} {
 	FAILED := "FAILED"
 
 	applicationStatus := OK
-	mysqlStatus := OK
-	mysqlSlaveStatus := OK
-	redisStatus := OK
+	oracleMasterStatus := OK
+	oracleSlaveStatus := OK
 
-	err := h.Master.Ping()
-	if err != nil {
-		mysqlStatus = FAILED
+	if h.Master != nil {
+		err := h.Master.Ping()
+		if err != nil {
+			oracleMasterStatus = FAILED
+		}
+	} else {
+		oracleMasterStatus = FAILED
 	}
 
-	err = h.Slave.Ping()
-	if err != nil {
-		mysqlSlaveStatus = FAILED
+	if h.Slave != nil {
+		err := h.Slave.Ping()
+		if err != nil {
+			oracleSlaveStatus = FAILED
+		}
+	} else {
+		oracleSlaveStatus = FAILED
 	}
 
 	resp := map[string]interface{}{
 		"name": os.Args[0],
 		"status": map[string]string{
-			"application": applicationStatus,
-			"mysql":       mysqlStatus,
-			"mysqlSlave":  mysqlSlaveStatus,
-			"redis":       redisStatus,
+			"application":    applicationStatus,
+			"oracleMasterDB": oracleMasterStatus,
+			"oracleSlaveDB":  oracleSlaveStatus,
 		},
 	}
 
