@@ -1,12 +1,20 @@
 package service
 
+import (
+	"database/sql"
+	"time"
+)
+
 type MandatoryRequest struct {
 	AcceptLanguage string
 	Authorization  string
 }
 
 type BaseEntity struct {
-	Id int64 `db:"ID" json:"id" example:"12345"`
+	Id          int64        `db:"ID" json:"id" example:"12345"`
+	CreatedDate time.Time    `db:"CREATED_DATE"`
+	UpdatedDate sql.NullTime `db:"UPDATED_DATE"`
+	IsDeleted   string       `db:"IS_DELETED"`
 }
 
 type SqlParameter struct {

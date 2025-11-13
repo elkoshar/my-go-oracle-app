@@ -96,7 +96,7 @@ func (m memberRepository) CreateMember(ctx context.Context, data *Member) (lastI
 }
 
 func (m memberRepository) UpdateMember(ctx context.Context, id int64, data *Member) (rowsAffected int64, err error) {
-	args := []interface{}{data.Name, data.Info, id}
+	args := []interface{}{data.Name, data.Info, data.Detail, data.Policy, data.UpdatedDate, data.IsDeleted, id}
 	result, errExec := m.WriteOrUpdateOperation(ctx, updateMemberQuery, nil, args...)
 	if errExec != nil {
 		slog.WarnContext(ctx, fmt.Sprintf("failed to execute query, member = %v, errExec = %v", data, errExec))

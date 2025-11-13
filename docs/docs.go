@@ -421,14 +421,28 @@ const docTemplate = `{
                 }
             }
         },
+        "oracle_com_oracle_my-go-oracle-app_service_member.Address": {
+            "type": "object",
+            "properties": {
+                "primary": {
+                    "type": "string"
+                },
+                "secondary": {
+                    "type": "string"
+                }
+            }
+        },
         "oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail": {
             "type": "object",
             "properties": {
-                "category": {
+                "member_id": {
                     "type": "string"
                 },
-                "level": {
-                    "type": "integer"
+                "onboarding_stage": {
+                    "type": "string"
+                },
+                "risk_rating": {
+                    "type": "string"
                 }
             }
         },
@@ -436,7 +450,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "address": {
-                    "type": "string"
+                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.Address"
                 },
                 "age": {
                     "type": "integer"
@@ -449,17 +463,39 @@ const docTemplate = `{
         "oracle_com_oracle_my-go-oracle-app_service_member.MemberRequest": {
             "type": "object",
             "properties": {
+                "createdDate": {
+                    "type": "string"
+                },
+                "detail": {
+                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 12345
+                },
                 "info": {
                     "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo"
                 },
+                "isDeleted": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
+                },
+                "policy": {
+                    "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.Policy"
+                },
+                "updatedDate": {
+                    "$ref": "#/definitions/sql.NullTime"
                 }
             }
         },
         "oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse": {
             "type": "object",
             "properties": {
+                "created_date": {
+                    "type": "string"
+                },
                 "detail": {
                     "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail"
                 },
@@ -468,6 +504,9 @@ const docTemplate = `{
                 },
                 "info": {
                     "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo"
+                },
+                "is_deleted": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
@@ -480,11 +519,29 @@ const docTemplate = `{
         "oracle_com_oracle_my-go-oracle-app_service_member.Policy": {
             "type": "object",
             "properties": {
-                "emergencyContact": {
+                "data_categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "effective_date": {
                     "type": "string"
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "sql.NullTime": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
                 }
             }
         }

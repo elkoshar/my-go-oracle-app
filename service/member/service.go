@@ -2,8 +2,10 @@ package member
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log/slog"
+	"time"
 
 	service "oracle.com/oracle/my-go-oracle-app/service"
 )
@@ -69,7 +71,12 @@ func (m *memberService) CreateMember(ctx context.Context, data *MemberRequest) (
 		response MemberResponse
 	)
 
-	member := data.ToEntity()
+	baseEntity := service.BaseEntity{
+		CreatedDate: time.Now(),
+		IsDeleted:   "0",
+	}
+
+	member := data.ToEntity(baseEntity)
 
 	id, err := m.mr.CreateMember(ctx, &member)
 	if err != nil {
@@ -89,7 +96,12 @@ func (m *memberService) UpdateMember(ctx context.Context, id int64, data *Member
 		response MemberResponse
 	)
 
-	member := data.ToEntity()
+	baseEntity := service.BaseEntity{
+		UpdatedDate: sql.NullTime{Time: time.Now(), Valid: true},
+		IsDeleted:   "0",
+	}
+
+	member := data.ToEntity(baseEntity)
 
 	// Set the member's ID since we're updating
 	member.Id = id
