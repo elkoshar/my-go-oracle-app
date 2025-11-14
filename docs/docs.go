@@ -435,13 +435,13 @@ const docTemplate = `{
         "oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail": {
             "type": "object",
             "properties": {
-                "member_id": {
+                "memberId": {
                     "type": "string"
                 },
-                "onboarding_stage": {
+                "onboardingStage": {
                     "type": "string"
                 },
-                "risk_rating": {
+                "riskRating": {
                     "type": "string"
                 }
             }
@@ -463,37 +463,24 @@ const docTemplate = `{
         "oracle_com_oracle_my-go-oracle-app_service_member.MemberRequest": {
             "type": "object",
             "properties": {
-                "createdDate": {
-                    "type": "string"
-                },
                 "detail": {
                     "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail"
                 },
-                "id": {
-                    "type": "integer",
-                    "example": 12345
-                },
                 "info": {
                     "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo"
-                },
-                "isDeleted": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
                 "policy": {
                     "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.Policy"
-                },
-                "updatedDate": {
-                    "$ref": "#/definitions/sql.NullTime"
                 }
             }
         },
         "oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse": {
             "type": "object",
             "properties": {
-                "created_date": {
+                "createdDate": {
                     "type": "string"
                 },
                 "detail": {
@@ -505,7 +492,7 @@ const docTemplate = `{
                 "info": {
                     "$ref": "#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo"
                 },
-                "is_deleted": {
+                "isDeleted": {
                     "type": "boolean"
                 },
                 "name": {
@@ -519,29 +506,17 @@ const docTemplate = `{
         "oracle_com_oracle_my-go-oracle-app_service_member.Policy": {
             "type": "object",
             "properties": {
-                "data_categories": {
+                "dataCategories": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "effective_date": {
+                "effectiveDate": {
                     "type": "string"
                 },
                 "status": {
                     "type": "string"
-                }
-            }
-        },
-        "sql.NullTime": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
                 }
             }
         }

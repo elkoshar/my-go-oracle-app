@@ -21,9 +21,9 @@ type Member struct {
 }
 
 type MemberDetail struct {
-	MemberId        string `json:"member_id"`
-	OnboardingStage string `json:"onboarding_stage"`
-	RiskRating      string `json:"risk_rating"`
+	MemberId        string `json:"memberId"`
+	OnboardingStage string `json:"onboardingStage"`
+	RiskRating      string `json:"riskRating"`
 }
 
 type MemberRequest struct {
@@ -34,9 +34,9 @@ type MemberRequest struct {
 }
 
 type Policy struct {
-	EffectiveDate  string   `json:"effective_date"`
+	EffectiveDate  string   `json:"effectiveDate"`
 	Status         string   `json:"status"`
-	DataCategories []string `json:"data_categories"`
+	DataCategories []string `json:"dataCategories"`
 }
 
 type MemberResponse struct {
@@ -45,8 +45,8 @@ type MemberResponse struct {
 	Info        MemberInfo   `json:"info"`
 	Detail      MemberDetail `json:"detail"`
 	Policy      Policy       `json:"policy"`
-	CreatedDate time.Time    `json:"created_date,omitempty"`
-	IsDeleted   bool         `json:"is_deleted"`
+	CreatedDate time.Time    `json:"createdDate,omitempty"`
+	IsDeleted   bool         `json:"isDeleted"`
 }
 
 type MemberInfo struct {

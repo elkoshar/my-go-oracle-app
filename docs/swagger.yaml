@@ -36,11 +36,11 @@ definitions:
     type: object
   oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail:
     properties:
-      member_id:
+      memberId:
         type: string
-      onboarding_stage:
+      onboardingStage:
         type: string
-      risk_rating:
+      riskRating:
         type: string
     type: object
   oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo:
@@ -54,35 +54,26 @@ definitions:
     type: object
   oracle_com_oracle_my-go-oracle-app_service_member.MemberRequest:
     properties:
+      detail:
+        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail'
+      info:
+        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo'
+      name:
+        type: string
+      policy:
+        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.Policy'
+    type: object
+  oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse:
+    properties:
       createdDate:
         type: string
       detail:
         $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail'
       id:
-        example: 12345
         type: integer
       info:
         $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo'
       isDeleted:
-        type: string
-      name:
-        type: string
-      policy:
-        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.Policy'
-      updatedDate:
-        $ref: '#/definitions/sql.NullTime'
-    type: object
-  oracle_com_oracle_my-go-oracle-app_service_member.MemberResponse:
-    properties:
-      created_date:
-        type: string
-      detail:
-        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberDetail'
-      id:
-        type: integer
-      info:
-        $ref: '#/definitions/oracle_com_oracle_my-go-oracle-app_service_member.MemberInfo'
-      is_deleted:
         type: boolean
       name:
         type: string
@@ -91,22 +82,14 @@ definitions:
     type: object
   oracle_com_oracle_my-go-oracle-app_service_member.Policy:
     properties:
-      data_categories:
+      dataCategories:
         items:
           type: string
         type: array
-      effective_date:
+      effectiveDate:
         type: string
       status:
         type: string
-    type: object
-  sql.NullTime:
-    properties:
-      time:
-        type: string
-      valid:
-        description: Valid is true if Time is not NULL
-        type: boolean
     type: object
 info:
   contact:
